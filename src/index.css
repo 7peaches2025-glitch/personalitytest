@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Philosophy & Elegance Theme */
+  --color-background: #FAFAFA;
+  /* Warm White / Cream */
+  --color-primary: #1A202C;
+  /* Deep Navy / Ink Black */
+  --color-secondary: #9CA3AF;
+  /* Muted Sage Green */
+  --color-accent: #B89E7D;
+  /* Muted Gold / Bronze */
+  --color-surface: #FFFFFF;
+  /* Pure White for depth */
+
+  --font-serif: "Noto Serif SC", serif;
+  --font-sans: "Inter", sans-serif;
+
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  margin: 0;
+}
+
+.premium-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 24px;
+}
+
+.btn-primary {
+  background: transparent;
+  border: 1px solid var(--color-accent);
+  /* Thinner, elegant border */
+  color: var(--color-primary);
+  padding: 12px 32px;
+  /* Wider padding for elegance */
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  /* Spaced text */
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: var(--color-accent);
+  color: #FFFFFF;
+  border-color: var(--color-accent);
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
