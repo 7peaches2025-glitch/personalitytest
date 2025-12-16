@@ -1,0 +1,10 @@
+# .gh-pages-ignore 文件内容
+# 忽略所有 node 依赖项
+node_modules
+# 忽略 Git 相关的元数据
+.git
+# 忽略项目源码本身，我们只部署 dist
+src
+package.json
+package-lock.json
+# ... 所有其他不属于 dist 的源码文件
