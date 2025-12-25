@@ -8,22 +8,6 @@ const Landing = () => {
     return (
         <div className="min-h-screen bg-[var(--color-background)] flex flex-col items-center justify-center p-4 relative overflow-hidden">
 
-            {/* Developer/Debug Menu (Bottom Right) */}
-            <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end space-y-2 opacity-30 hover:opacity-100 transition-opacity">
-                <div className="text-[10px] font-mono text-gray-500 mb-1 bg-white px-2 py-1 rounded shadow">开发者预览通道 (点击直接查看报告)</div>
-                <div className="grid grid-cols-4 gap-1 p-2 bg-gray-50 rounded-lg shadow-lg border border-gray-200">
-                    {["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"].map(id => (
-                        <button
-                            key={id}
-                            onClick={() => navigate('/report', { state: { debugMaskId: id } })}
-                            className="w-8 h-8 flex items-center justify-center text-[10px] font-bold text-gray-600 bg-white border border-gray-200 rounded hover:bg-[var(--color-primary)] hover:text-white transition-colors"
-                            title={`Mask ${id}`}
-                        >
-                            {id}
-                        </button>
-                    ))}
-                </div>
-            </div>
 
             <div className="absolute inset-0 z-0 opacity-10 pointer-events-none"></div>
             <h1 className="text-4xl md:text-5xl font-serif font-bold text-[var(--color-primary)] mb-4 tracking-wide">
@@ -47,16 +31,16 @@ const Landing = () => {
                 <FeatureCard
                     icon={<Brain className="w-6 h-6" />}
                     title="12种面具深度诊断"
-                    desc="基于荣格心理学原型，直击你的情绪底层代码和潜意识模式"
+                    desc="融合心理学、神经学和东方哲学，直击你的情绪底层代码和潜意识模式"
                 />
                 <FeatureCard
                     icon={<Shield className="w-6 h-6" />}
                     title="五大体系核心"
-                    desc="交付高价值实战脚本，将你的情绪消耗转化为独特力量"
+                    desc="AI智能分析，交付高价值实战脚本，将你的情绪消耗转化为独特力量"
                 />
                 <FeatureCard
                     icon={<Zap className="w-6 h-6" />}
-                    title="20页+专属报告"
+                    title="3000字+专属报告"
                     desc="详细的行动指南，一份值得反复阅读的人生进阶说明书"
                 />
             </div>

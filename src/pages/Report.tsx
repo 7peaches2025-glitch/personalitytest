@@ -23,6 +23,11 @@ interface ParsedSections {
     part3Items?: { title: string; content: string[] }[]; // Decision (Structured)
     part4: string; // Growth (Fallback)
     part4Items?: { title: string; content: string[] }[]; // Growth (Structured)
+    part5?: {
+        career: string;
+        relationships: string;
+        health: string;
+    };
 }
 
 const Report: React.FC = () => {
@@ -48,14 +53,31 @@ const Report: React.FC = () => {
                 setReport(data);
                 try {
                     const parsedData = parseReportContent(data.fullReport || "");
+                    // Ensure all required fields exist
+                    if (!parsedData.deepDive) {
+                        parsedData.deepDive = {
+                            title: "",
+                            intro: [],
+                            sceneTitle: "场景代入",
+                            sceneContent: "",
+                            outro: []
+                        };
+                    }
+                    if (!parsedData.flavor) {
+                        parsedData.flavor = [];
+                    }
+                    if (!parsedData.philosophy) {
+                        parsedData.philosophy = "";
+                    }
                     setParsed(parsedData);
                 } catch (parseError) {
                     console.error("Parsing failed:", parseError);
+                    console.error("Full report text:", data.fullReport?.substring(0, 500));
                     setError("解析报告内容失败，请检查数据格式。");
                 }
 
             } catch (e) {
-                console.error(e);
+                console.error("Fetch report error:", e);
                 setError("获取报告数据失败，请重试。");
             } finally {
                 setLoading(false);
@@ -122,7 +144,7 @@ const Report: React.FC = () => {
                         你的主导情绪面具
                     </h1>
                     <div className="text-5xl md:text-6xl font-serif text-[var(--color-accent)] font-bold mt-2">
-                        - {report.archetype}
+                        - {report?.archetype || ''}
                     </div>
                     <p className="text-sm text-gray-400 tracking-widest uppercase mt-4">
                         Thinking / Emotion / Ego
@@ -149,11 +171,15 @@ const Report: React.FC = () => {
                             核心底色
                         </h3>
                         <div className="flex flex-wrap justify-center gap-2">
-                            {parsed.flavor.map((tag, i) => (
+                            {parsed.flavor && parsed.flavor.length > 0 ? parsed.flavor.map((tag, i) => (
                                 <span key={i} className="px-4 py-2 bg-[#EFEBE0] text-[var(--color-primary)] text-sm rounded-full shadow-sm font-medium">
                                     {tag}
                                 </span>
-                            ))}
+                            )) : (
+                                <span className="px-4 py-2 bg-[#EFEBE0] text-[var(--color-primary)] text-sm rounded-full shadow-sm font-medium">
+                                    独特特质
+                                </span>
+                            )}
                         </div>
                     </div>
 
@@ -163,7 +189,7 @@ const Report: React.FC = () => {
                             <Quote className="w-3 h-3" /> Mask Philosophy
                         </div>
                         <p className="text-lg font-serif text-[var(--color-primary)] italic">
-                            “{parsed.philosophy}”
+                            "{parsed.philosophy || ''}"
                         </p>
                     </div>
                 </motion.div>
@@ -184,22 +210,36 @@ const Report: React.FC = () => {
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-[var(--color-accent)] to-transparent opacity-20" />
 
                 <div className="max-w-3xl mx-auto">
-                    {/* Level 1 Title: The Sparkle Title */}
-                    <div className="mb-12 text-center md:text-left">
-                        <div className="inline-flex items-center gap-2 text-[var(--color-accent)] text-sm tracking-widest uppercase mb-4 font-bold">
+                    {/* Level 1 Title: The Sparkle Title - Enhanced Design */}
+                    <div className="mb-16">
+                        {/* Section Label */}
+                        <div className="inline-flex items-center gap-2 text-[var(--color-accent)] text-xs tracking-[0.2em] uppercase mb-6 font-bold">
                             <Sparkles className="w-4 h-4" /> Deep Dive Analysis
                         </div>
-                        <h2 className="text-3xl md:text-4xl font-serif font-bold text-[var(--color-primary)] leading-tight">
-                            {parsed.deepDive.title.replace('✨ 标题：', '').replace('✨', '')}
+
+                        {/* Main Title - Large and Prominent */}
+                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-[var(--color-primary)] leading-[1.1] mb-8 tracking-tight">
+                            {parsed.deepDive.title ? parsed.deepDive.title.replace('✨ 标题：', '').replace('✨', '').trim() : ''}
                         </h2>
+
+                        {/* First Intro Paragraph as Subtitle - Highlighted */}
+                        {parsed.deepDive.intro && parsed.deepDive.intro.length > 0 && parsed.deepDive.intro[0] && parsed.deepDive.intro[0].trim() ? (
+                            <div className="border-l-4 border-[var(--color-accent)] pl-6 mb-12">
+                                <p className="text-xl md:text-2xl font-serif text-[var(--color-primary)] leading-relaxed font-medium italic">
+                                    {parsed.deepDive.intro[0].trim()}
+                                </p>
+                            </div>
+                        ) : null}
                     </div>
 
-                    {/* Intro Text */}
-                    <div className="prose prose-stone prose-lg max-w-none text-gray-600 leading-loose mb-16">
-                        {parsed.deepDive.intro.map((para, i) => (
-                            <p key={i}>{para}</p>
-                        ))}
-                    </div>
+                    {/* Remaining Intro Text */}
+                    {parsed.deepDive.intro && parsed.deepDive.intro.length > 1 && (
+                        <div className="prose prose-stone prose-lg max-w-none text-gray-600 leading-loose mb-16">
+                            {parsed.deepDive.intro.slice(1).map((para, i) => (
+                                <p key={i}>{para}</p>
+                            ))}
+                        </div>
+                    )}
 
                     {/* Scene Substitution Card */}
                     {(parsed.deepDive.sceneContent) && (
@@ -214,11 +254,13 @@ const Report: React.FC = () => {
                     )}
 
                     {/* Outro Text (if any) */}
-                    <div className="prose prose-stone prose-lg max-w-none text-gray-600 leading-loose">
-                        {parsed.deepDive.outro.map((para, i) => (
-                            <p key={i}>{para}</p>
-                        ))}
-                    </div>
+                    {parsed.deepDive.outro && parsed.deepDive.outro.length > 0 && (
+                        <div className="prose prose-stone prose-lg max-w-none text-gray-600 leading-loose">
+                            {parsed.deepDive.outro.map((para, i) => (
+                                <p key={i}>{para}</p>
+                            ))}
+                        </div>
+                    )}
 
                     {/* Visual spacer before Data Section */}
                     <div className="h-24 w-px bg-gradient-to-b from-gray-200 to-transparent mx-auto mt-24" />
@@ -231,47 +273,50 @@ const Report: React.FC = () => {
                 <div className="max-w-3xl mx-auto space-y-24">
 
                     {/* Part 2: Data Visualization */}
-                    {/* Part 2: Data & Insight - Side by Side */}
-                    <div className="min-h-screen flex flex-col justify-center py-20">
-                        <div className="grid md:grid-cols-12 gap-12 lg:gap-24 items-start">
-                            {/* Left: Sticky Chart & Summary */}
-                            <div className="md:col-span-5 lg:col-span-5 md:sticky md:top-32 space-y-12">
-                                {/* Header (Left Aligned) */}
-                                <div className="space-y-4">
-                                    <h2 className="text-3xl md:text-4xl font-serif font-bold text-[var(--color-primary)] leading-tight">
-                                        情绪光谱与<br />心跳频率
-                                    </h2>
-                                    <p className="text-[var(--color-secondary)]/60 text-xs tracking-[0.2em] uppercase">
-                                        Data Visualization & Analysis
-                                    </p>
-                                </div>
+                    {/* Part 2: Data & Insight - Centered & Split */}
+                    <div className="min-h-screen flex flex-col justify-center py-20 space-y-16">
+                        {/* Centered Header */}
+                        <div className="text-center space-y-6">
+                            <h2 className="text-4xl md:text-5xl font-serif font-bold text-[var(--color-primary)]">
+                                情绪光谱与心跳频率
+                            </h2>
+                            <p className="text-[var(--color-secondary)]/60 text-xs tracking-[0.2em] uppercase">
+                                Data Visualization & Analysis
+                            </p>
+                        </div>
 
-                                <div className="bg-white/50 backdrop-blur-sm rounded-[2.5rem] p-8 shadow-sm border border-[var(--color-primary)]/5">
-                                    <EmotionalRadar data={report.radarData} />
+                        {/* Centered & Enlarged Radar Chart */}
+                        <div className="flex justify-center w-full">
+                            <div className="w-full max-w-4xl bg-white/50 backdrop-blur-sm rounded-[3rem] p-8 md:p-12 shadow-sm border border-[var(--color-primary)]/5">
+                                <div className="aspect-[4/3] w-full flex items-center justify-center">
+                                    <EmotionalRadar data={report?.radarData || []} />
                                 </div>
+                            </div>
+                        </div>
 
-                                {/* Summary Card */}
-                                <div className="bg-[var(--color-primary)] text-[#F9F7F2] p-8 rounded-2xl shadow-lg relative overflow-hidden group">
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                                    <h4 className="font-bold text-lg mb-4 flex items-center gap-2 font-serif">
-                                        <Sparkles className="w-5 h-5 text-[var(--color-accent)]" /> 核心洞察
+                        {/* Bottom Row: Data Perspective & Core Insights */}
+                        <div className="grid md:grid-cols-2 gap-12 lg:gap-24 items-start">
+                            {/* Left: Core Insights (Summary) */}
+                            <div className="order-2 md:order-1 sticky top-32">
+                                <div className="bg-[var(--color-primary)] text-[#F9F7F2] p-10 rounded-3xl shadow-xl relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+                                    <h4 className="font-bold text-xl mb-6 flex items-center gap-3 font-serif border-b border-white/10 pb-4">
+                                        <Sparkles className="w-6 h-6 text-[var(--color-accent)]" /> 核心洞察
                                     </h4>
-                                    <p className="text-white/90 leading-relaxed italic text-justify text-sm">
-                                        {report.summaryQuote}
+                                    <p className="text-white/90 leading-relaxed italic text-justify text-lg font-serif">
+                                        {report?.summaryQuote || ''}
                                     </p>
                                 </div>
                             </div>
 
-                            {/* Right: Scrollable Analysis */}
-                            <div className="md:col-span-7 lg:col-span-7 space-y-12">
-                                <div className="relative pl-8 md:pl-12 border-l border-[var(--color-primary)]/10">
-                                    <div className="absolute -left-[5px] top-0 w-2.5 h-2.5 bg-[var(--color-primary)] rounded-full" />
-                                    <div className="text-xs font-bold text-[var(--color-accent)] tracking-widest uppercase mb-8">Deep Interpretation</div>
-
-                                    <article className="prose prose-stone prose-lg max-w-none prose-headings:font-serif prose-headings:text-[var(--color-primary)] prose-p:leading-loose text-justify prose-p:text-gray-600">
-                                        <SimpleMarkdown content={parsed.part2} />
-                                    </article>
+                            {/* Right: Deep Interpretation (Data Perspective) */}
+                            <div className="order-1 md:order-2 space-y-6">
+                                <div className="text-xs font-bold text-[var(--color-accent)] tracking-widest uppercase border-b border-[var(--color-accent)]/20 pb-4">
+                                    数据透视 (Data Perspective)
                                 </div>
+                                <article className="prose prose-stone prose-lg max-w-none prose-headings:font-serif prose-headings:text-[var(--color-primary)] prose-p:leading-loose text-justify prose-p:text-gray-600">
+                                    <SimpleMarkdown content={parsed.part2 || ''} />
+                                </article>
                             </div>
                         </div>
                     </div>
@@ -288,7 +333,7 @@ const Report: React.FC = () => {
                         <div className="bg-white p-8 md:p-12 rounded-3xl shadow-sm">
                             <div className="text-xs font-bold text-[var(--color-accent)] tracking-widest uppercase mb-6">Part 3: Decision & Life</div>
                             <article className="prose prose-stone prose-lg max-w-none prose-headings:font-serif prose-headings:text-[var(--color-primary)] prose-p:leading-loose text-justify">
-                                <SimpleMarkdown content={parsed.part3} />
+                                <SimpleMarkdown content={parsed.part3 || ''} />
                             </article>
                         </div>
                     )}
@@ -308,10 +353,15 @@ const Report: React.FC = () => {
                                 <div className="text-xs font-bold text-white/60 tracking-widest uppercase mb-6">Part 4: Growth Guide</div>
                                 {/* Custom white prose for dark background */}
                                 <article className="prose prose-invert prose-lg max-w-none prose-headings:font-serif prose-headings:text-white prose-p:leading-loose prose-p:text-gray-300 text-justify">
-                                    <SimpleMarkdown content={parsed.part4} />
+                                    <SimpleMarkdown content={parsed.part4 || ''} />
                                 </article>
                             </div>
                         </div>
+                    )}
+
+                    {/* Part 5: Dimensions (New) */}
+                    {parsed.part5 && (
+                        <DimensionAnalysisSection data={parsed.part5} />
                     )}
 
                     {/* Footer */}
@@ -324,8 +374,8 @@ const Report: React.FC = () => {
                         </button>
                     </div>
                 </div>
-            </section>
-        </div>
+            </section >
+        </div >
     );
 };
 
@@ -368,7 +418,8 @@ function parseReportContent(fullText: string): ParsedSections {
         part3: "",
         part3Items: [],
         part4: "",
-        part4Items: []
+        part4Items: [],
+        part5: undefined
     };
 
     // 1. Core Flavor (Usually line 1 or 2, containing "底色" or "风味")
@@ -386,6 +437,7 @@ function parseReportContent(fullText: string): ParsedSections {
     const part2Idx = lines.findIndex(l => l.trim().match(/^[二][、\.]/));
     const part3Idx = lines.findIndex(l => l.trim().match(/^[三][、\.]/));
     const part4Idx = lines.findIndex(l => l.trim().match(/^[四][、\.]/));
+    const part5Idx = lines.findIndex(l => l.trim().match(/^[五][、\.]/));
 
     // Extract raw text blocks
     const part1Text = lines.slice(part1Idx, part2Idx > -1 ? part2Idx : undefined);
@@ -406,14 +458,20 @@ function parseReportContent(fullText: string): ParsedSections {
     // Parse Deep Dive (Part 1 Internal Structure)
     // Looking for "✨ 标题：" and "场景代入："
     let inScene = false;
+    let foundTitle = false;
+
     part1Text.forEach(line => {
         const trimmed = line.trim();
         if (!trimmed) return;
 
         if (trimmed.includes("✨") || trimmed.startsWith("标题：")) {
             sections.deepDive.title = trimmed.replace(/✨|标题[:：]/g, '').trim();
+            foundTitle = true;
             return;
         }
+
+        // Only start parsing content after we've found the title
+        if (!foundTitle) return;
 
         if (trimmed.startsWith("场景代入") || trimmed.includes("情境代入")) {
             inScene = true;
@@ -425,17 +483,7 @@ function parseReportContent(fullText: string): ParsedSections {
             return;
         }
 
-        // Logic to exit scene? Usually scene is one block. 
-        // If we hit another heavy marker or just assume scene lasts until end of Part 1 intro?
-        // Let's assume Scene typically ends when we hit "你不需要..." or typical transition paragraphs, 
-        // BUT simpler: Scene is the rest of deep dive OR until a clear break. 
-        // Given user example: "你不需要外界的批评..." is AFTER Sample Scene. 
-        // So we need a heuristic to close the scene.
-        // Heuristic: If we are inScene, and line starts with specific transition keywords or is just a new paragraph?
-        // Use simple logic: Scene is just the paragraph(s) immediately following the marker header.
-
-        // Actually, let's treat "Scene" as a block. 
-        // If we see "你是..." or "你不需要..." (Analysis return), we exit scene.
+        // Logic to exit scene: If we see transition keywords, exit scene
         if (inScene) {
             if (trimmed.startsWith("你不需要") || trimmed.startsWith("你不是") || trimmed.startsWith("你的")) {
                 inScene = false;
@@ -444,8 +492,8 @@ function parseReportContent(fullText: string): ParsedSections {
                 sections.deepDive.sceneContent += trimmed + "\n";
             }
         } else {
-            // Intro or Outro logic is tricky if order varies.
-            // Default to Intro if we haven't hit scene yet.
+            // If we haven't hit scene yet, it's intro
+            // If we've already processed scene, it's outro
             if (!sections.deepDive.sceneContent) {
                 sections.deepDive.intro.push(trimmed);
             } else {
@@ -484,9 +532,35 @@ function parseReportContent(fullText: string): ParsedSections {
 
     // Part 4 Parsing
     if (part4Idx > -1) {
-        const rawLines = lines.slice(part4Idx + 1);
+        const end = part5Idx > -1 ? part5Idx : undefined;
+        const rawLines = lines.slice(part4Idx + 1, end);
         sections.part4 = rawLines.join('\n');
         sections.part4Items = parseNumberedItems(sections.part4);
+    }
+
+    // Part 5 Parsing (Dimensions)
+    if (part5Idx > -1) {
+        const rawLines = lines.slice(part5Idx + 1);
+
+        // Simple extraction based on known headers
+        // Headers might be: "事业与财富深度解读：", "亲密关系：", "身体健康："
+        const careerIdx = rawLines.findIndex(l => l.includes("事业") && (l.includes("深度解读") || l.includes("：")));
+        const relIdx = rawLines.findIndex(l => l.includes("亲密关系") && l.includes("："));
+        const healthIdx = rawLines.findIndex(l => l.includes("身体健康") && l.includes("："));
+
+        const extractSection = (start: number, nextStart: number) => {
+            if (start === -1) return "";
+            const end = nextStart > -1 ? nextStart : undefined;
+            // +1 to skip the header line itself
+            return rawLines.slice(start + 1, end).join('\n').trim();
+        };
+
+        // Determine order (usually Career -> Rel -> Health) but indices tell truth
+        sections.part5 = {
+            career: extractSection(careerIdx, relIdx > -1 ? relIdx : healthIdx),
+            relationships: extractSection(relIdx, healthIdx),
+            health: extractSection(healthIdx, -1) // -1 means to end
+        };
     }
 
     return sections;
@@ -561,14 +635,14 @@ const GrowthGuideSection: React.FC<{
     startIdx?: number;
 }> = ({ title, subtitle, items, startIdx = 1 }) => {
     return (
-        <div className="space-y-48 py-20">
-            {/* Loop through items in chunks of 2 */}
-            {Array.from({ length: Math.ceil(items.length / 2) }).map((_, pageIdx) => {
-                const pageItems = items.slice(pageIdx * 2, pageIdx * 2 + 2);
+        <div className="space-y-32 py-20">
+            {/* Loop through items in chunks of 3 */}
+            {Array.from({ length: Math.ceil(items.length / 3) }).map((_, pageIdx) => {
+                const pageItems = items.slice(pageIdx * 3, pageIdx * 3 + 3);
                 return (
-                    <div key={pageIdx} className="min-h-[80vh] flex flex-col items-center">
+                    <div key={pageIdx} className="min-h-[60vh] flex flex-col items-center justify-center">
                         {/* Header */}
-                        <div className="text-center space-y-4 mb-24 relative z-10 bg-[#F9F7F2] px-8">
+                        <div className="text-center space-y-4 mb-16 relative z-10 px-8">
                             <h2 className="text-2xl md:text-3xl font-serif font-bold text-[var(--color-primary)]">
                                 {title}
                             </h2>
@@ -577,57 +651,39 @@ const GrowthGuideSection: React.FC<{
                             </p>
                         </div>
 
-                        {/* Timeline Container */}
-                        <div className="relative w-full max-w-4xl space-y-24">
-                            {/* Central Line */}
-                            <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-px border-l border-dashed border-[var(--color-accent)]/30 -translate-x-1/2 hidden md:block" />
-                            <div className="absolute left-6 top-0 bottom-0 w-px border-l border-dashed border-[var(--color-accent)]/30 md:hidden" />
-
+                        {/* Grid Container (Replaces Timeline) */}
+                        <div className="w-full max-w-7xl px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
                             {pageItems.map((item, i) => {
-                                const isLeft = i % 2 === 0;
                                 return (
-                                    <div key={i} className={`relative flex flex-col md:flex-row items-center md:items-start ${isLeft ? 'md:flex-row-reverse' : ''} group`}>
+                                    <div key={i} className="flex flex-col group h-full">
+                                        <div className="bg-white/80 backdrop-blur-sm p-8 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-500 border border-[var(--color-primary)]/5 relative overflow-hidden group-hover:bg-white flex-1 flex flex-col">
+                                            {/* Decorative Growth Circle */}
+                                            <div className="absolute -right-6 -top-6 w-24 h-24 bg-[var(--color-accent)]/5 rounded-full blur-2xl transition-all group-hover:bg-[var(--color-accent)]/10" />
 
-                                        {/* Content Card */}
-                                        <div className="w-full md:w-[45%] pl-16 md:pl-0 md:px-0">
-                                            <div className="bg-white/80 backdrop-blur-sm p-8 md:p-10 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-500 border border-[var(--color-primary)]/5 relative overflow-hidden group-hover:bg-white">
-                                                {/* Decorative Growth Circle */}
-                                                <div className="absolute -right-6 -top-6 w-24 h-24 bg-[var(--color-accent)]/5 rounded-full blur-2xl transition-all group-hover:bg-[var(--color-accent)]/10" />
+                                            <div className="relative z-10 flex-1 flex flex-col">
+                                                <h3 className="text-xl font-bold text-[var(--color-primary)] mb-6 flex items-center gap-3">
+                                                    <span className="inline-block w-8 h-8 rounded-full bg-[var(--color-primary)] text-[#F9F7F2] text-center leading-8 font-serif text-sm flex-shrink-0">
+                                                        {(pageIdx * 3 + i + 1)}
+                                                    </span>
+                                                    <span>{item.title.replace(/^[0-9]+[、\.【]/, '').replace('】', '')}</span>
+                                                </h3>
 
-                                                <div className="relative z-10">
-                                                    <h3 className="text-xl font-bold text-[var(--color-primary)] mb-6 flex items-center gap-3">
-                                                        <span className="inline-block w-8 h-8 rounded-full bg-[var(--color-primary)] text-[#F9F7F2] text-center leading-8 font-serif text-sm">
-                                                            {(pageIdx * 2 + i + 1)}
-                                                        </span>
-                                                        {item.title.replace(/^[0-9]+[、\.【]/, '').replace('】', '')}
-                                                    </h3>
-
-                                                    <div className="space-y-4 text-sm leading-loose text-gray-600">
-                                                        {item.content.map((line, lid) => {
-                                                            const isIntervention = line.includes("微观干预") || line.includes("行动建议");
-                                                            if (isIntervention) {
-                                                                return (
-                                                                    <div key={lid} className="mt-6 pt-4 border-t border-[var(--color-accent)]/20">
-                                                                        <div className="text-[10px] uppercase font-bold text-[var(--color-accent)] tracking-widest mb-2">Micro Intervention</div>
-                                                                        <p className="font-medium text-[var(--color-primary)]">{line.replace(/[:：]/g, '')}</p>
-                                                                    </div>
-                                                                );
-                                                            }
-                                                            return <p key={lid} className="text-justify">{line}</p>;
-                                                        })}
-                                                    </div>
+                                                <div className="space-y-4 text-sm leading-loose text-gray-600 flex-1">
+                                                    {item.content.map((line, lid) => {
+                                                        const isIntervention = line.includes("微观干预") || line.includes("行动建议");
+                                                        if (isIntervention) {
+                                                            return (
+                                                                <div key={lid} className="mt-6 pt-4 border-t border-[var(--color-accent)]/20">
+                                                                    <div className="text-[10px] uppercase font-bold text-[var(--color-accent)] tracking-widest mb-2">Micro Intervention</div>
+                                                                    <p className="font-medium text-[var(--color-primary)]">{line.replace(/[:：]/g, '')}</p>
+                                                                </div>
+                                                            );
+                                                        }
+                                                        return <p key={lid} className="text-justify">{line}</p>;
+                                                    })}
                                                 </div>
                                             </div>
                                         </div>
-
-                                        {/* Spacer for Center Line Alignment */}
-                                        <div className="md:w-[10%]" />
-
-                                        {/* Timeline Node */}
-                                        <div className="absolute left-6 md:left-[50%] top-10 w-3 h-3 bg-[var(--color-accent)] rounded-full -translate-x-[6.5px] z-20 outline outline-4 outline-[#F9F7F2] group-hover:scale-125 transition-transform duration-300 shadow-[0_0_20px_rgba(200,166,100,0.6)]" />
-
-                                        {/* Empty Side for balance (Tablet/Desktop) */}
-                                        <div className="hidden md:block md:w-[45%]" />
                                     </div>
                                 );
                             })}
@@ -664,6 +720,95 @@ const SimpleMarkdown: React.FC<{ content: string }> = ({ content }) => {
 
                 return <p key={i}>{trimmed}</p>;
             })}
+        </div>
+    );
+};
+
+
+const DimensionAnalysisSection: React.FC<{ data: { career: string; relationships: string; health: string } }> = ({ data }) => {
+    // Premium Color Palette
+    const colors = {
+        bg: 'bg-[#FAFAFA]',       // Warm White
+        text: 'text-[#1A202C]',   // Deep Navy
+        accent: 'text-[#B89E7D]', // Muted Gold (Text)
+        border: 'border-[#B89E7D]', // Muted Gold (Border)
+        secondary: 'text-[#9CA3AF]' // Sage Green (Secondary Text)
+    };
+
+    const dimensions = [
+        {
+            key: 'career',
+            title: '事业与财富',
+            subtitle: 'CAREER & WEALTH',
+            content: data.career,
+            icon: '💼'
+        },
+        {
+            key: 'relationships',
+            title: '亲密关系',
+            subtitle: 'INTIMATE RELATIONSHIPS',
+            content: data.relationships,
+            icon: '❤️'
+        },
+        {
+            key: 'health',
+            title: '身体健康',
+            subtitle: 'PHYSICAL HEALTH',
+            content: data.health,
+            icon: '🌿'
+        }
+    ];
+
+    return (
+        <div className={`py-32 ${colors.bg}`}>
+            {/* Main Section Header */}
+            <div className="text-center space-y-6 mb-32 relative z-10 px-6">
+                <div className="w-px h-24 bg-gradient-to-b from-transparent via-[#B89E7D] to-transparent mx-auto mb-8 opacity-60" />
+                <h2 className={`text-4xl md:text-5xl font-serif font-bold ${colors.text} tracking-tight`}>
+                    多维生命解析
+                </h2>
+                <p className={`${colors.accent} text-xs tracking-[0.3em] uppercase font-medium`}>
+                    Holistic Life Analysis — PART 5
+                </p>
+            </div>
+
+            <div className="space-y-0 text-[#212121]">
+                {dimensions.map((dim, index) => (
+                    <div key={dim.key} className="relative min-h-[80vh] flex flex-col items-center justify-center py-24 px-6 md:px-12 border-t border-[#E5E5E5]">
+
+                        {/* Decorative Background Number */}
+                        <div className="absolute top-12 right-6 md:right-24 text-[120px] md:text-[200px] font-serif font-bold text-[#F0F0F0] select-none pointer-events-none opacity-60">
+                            0{index + 1}
+                        </div>
+
+                        <div className="max-w-3xl w-full relative z-10">
+                            {/* Card Header */}
+                            <div className="flex flex-col items-center mb-16 space-y-4 text-center">
+                                <div className={`text-5xl mb-6 opacity-90 drop-shadow-sm`}>
+                                    {dim.icon}
+                                </div>
+                                <h3 className={`text-3xl md:text-4xl font-serif font-bold ${colors.text}`}>
+                                    {dim.title}
+                                </h3>
+                                <div className={`h-px w-16 bg-[#B89E7D] mt-4`} />
+                                <p className={`${colors.secondary} text-[10px] tracking-[0.3em] uppercase`}>
+                                    {dim.subtitle}
+                                </p>
+                            </div>
+
+                            {/* Content */}
+                            <div className={`prose prose-lg md:prose-xl ${colors.text} max-w-none leading-loose text-justify font-serif`}>
+                                <SimpleMarkdown content={dim.content || "暂无数据"} />
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Bottom Decor */}
+            <div className="flex justify-center mt-24">
+                <div className="w-2 h-2 rounded-full bg-[#B89E7D] mx-auto" />
+            </div>
         </div>
     );
 };

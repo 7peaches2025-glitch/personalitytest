@@ -2,12 +2,19 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Landing from './pages/Landing';
 import Test from './pages/Test';
 import Report from './pages/Report';
+import { useParams, Navigate } from 'react-router-dom';
+
+function DebugReportWrapper() {
+  const { maskId } = useParams();
+
+  return <Navigate to="/report" state={{ debugMaskId: maskId }} replace />;
+}
 
 function App() {
   return (
     
 
-    <BrowserRouter>
+    <BrowserRouter basename="/personalitytest">
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/test" element={<Test />} />
@@ -19,13 +26,7 @@ function App() {
   );
 }
 
-// Wrapper to inject debug state for direct URL access
-import { useParams, Navigate } from 'react-router-dom';
 
-function DebugReportWrapper() {
-  const { maskId } = useParams();
-  // Redirect to /report with the state
-  return <Navigate to="/report" state={{ debugMaskId: maskId }} replace />;
-}
+
 
 export default App;
