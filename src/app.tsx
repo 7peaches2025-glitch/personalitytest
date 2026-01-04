@@ -10,11 +10,14 @@ function DebugReportWrapper() {
   return <Navigate to="/report" state={{ debugMaskId: maskId }} replace />;
 }
 
+
+const BASE_PATH = import.meta.env.MODE === 'production' ? (import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL) : '';
+
 function App() {
   return (
-    
 
-    <BrowserRouter basename="/personalitytest">
+
+    <BrowserRouter basename={BASE_PATH}>
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/test" element={<Test />} />
@@ -22,7 +25,7 @@ function App() {
         <Route path="/state/debug/:maskId" element={<DebugReportWrapper />} />
       </Routes>
     </BrowserRouter>
-    
+
   );
 }
 
