@@ -30,6 +30,11 @@ body {
   background-color: var(--color-background);
   color: var(--color-primary);
   -webkit-font-smoothing: antialiased;
+  /* Disable text selection */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 button {

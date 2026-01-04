@@ -12,6 +12,23 @@
     if (top !== self) {
       top.location.replace(self.location.href);
     }
+
+    // Disable right-click
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    // Disable common shortcuts for copying or viewing source
+    document.addEventListener('keydown', (e) => {
+      // Disable F12, Ctrl+U (Cmd+U), Ctrl+Shift+I (Cmd+Option+I), Ctrl+C (Cmd+C)
+      if (
+        e.key === 'F12' ||
+        ((e.ctrlKey || e.metaKey) && e.key === 'u') ||
+        ((e.ctrlKey || e.metaKey) && (e.shiftKey || e.altKey) && (e.key === 'i' || e.key === 'c' || e.key === 'j')) ||
+        ((e.ctrlKey || e.metaKey) && e.key === 'c')
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
   </script>
 </head>
 
