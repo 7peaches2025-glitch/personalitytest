@@ -1,5 +1,5 @@
 # .gitignore 文件内容
 /node_modules
-/dist          # 如果 gh-pages 不支持直接部署 dist，可以暂时不忽略
+#/dist          # 如果 gh-pages 不支持直接部署 dist，可以暂时不忽略
 .env
 .DS_Store
