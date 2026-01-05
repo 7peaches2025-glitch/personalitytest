@@ -11,7 +11,7 @@ function DebugReportWrapper() {
 }
 
 
-const BASE_PATH = import.meta.env.MODE === 'production' ? (import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL) : '';
+const BASE_PATH = import.meta.env.BASE_URL;
 
 function App() {
   return (
