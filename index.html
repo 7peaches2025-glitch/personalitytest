@@ -7,6 +7,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>personality-test</title>
 
+  <script type="text/javascript">
+    console.log('Page started loading...');
+    window.addEventListener('error', (e) => {
+      alert('JS Error: ' + e.message + ' at ' + e.filename);
+    });
+  </script>
 </head>
 
 <body>
