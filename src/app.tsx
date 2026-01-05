@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import Landing from './pages/Landing';
 import Test from './pages/Test';
 import Report from './pages/Report';
@@ -11,20 +11,20 @@ function DebugReportWrapper() {
 }
 
 
-const BASE_PATH = import.meta.env.BASE_URL;
+
 
 function App() {
   return (
 
 
-    <BrowserRouter basename={BASE_PATH}>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/test" element={<Test />} />
         <Route path="/report" element={<Report />} />
         <Route path="/state/debug/:maskId" element={<DebugReportWrapper />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
 
   );
 }
